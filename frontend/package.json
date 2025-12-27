@@ -1,21 +1,31 @@
 {
   "name": "wedding-invitation",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Wedding invitation site rebuilt with Next.js and TailwindCSS",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "keywords": [],
   "author": "Odhy",
   "license": "MIT",
-  "description": "A simple wedding invitation website",
+  "dependencies": {
+    "aos": "^2.3.4",
+    "next": "^14.2.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
   "devDependencies": {
-    "@tailwindcss/aspect-ratio": "^0.x",
-    "@tailwindcss/forms": "^0.x",
-    "@tailwindcss/typography": "^0.5.x",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.15",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.4",
     "postcss": "^8.4.41",
-    "postcss-cli": "^11.0.0",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "tailwindcss": "^3.4.10"

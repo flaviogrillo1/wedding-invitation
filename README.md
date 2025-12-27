@@ -16,7 +16,7 @@
   <p align="center">
     A simple and elegant wedding invitation
     <br />
-    built with Hugo, TailwindCSS, Python, and Next.js
+    built with Next.js and TailwindCSS
     <br />
     <a href="https://github.com/odhyp/wedding-invitation"><strong>Live Preview »</strong></a>
     <br />
@@ -48,9 +48,7 @@ Before you begin, make sure you have the following installed on your system:
 
 - **Frontend Requirements**:
 
-  - Hugo (Static Site Generator)
-  - Node.js (Installing packages and TailwindCSS)
-  - Python (Generating invitation pages)
+  - Node.js (Next.js + TailwindCSS)
 
 - **Backend Requirements**:
 
@@ -58,7 +56,7 @@ Before you begin, make sure you have the following installed on your system:
 
 ### Installation
 
-#### Frontend
+#### Frontend (Next.js)
 
 1. Clone the Repository and navigate to the project directory:
 
@@ -72,18 +70,13 @@ Before you begin, make sure you have the following installed on your system:
    cd frontend && npm install
    ```
 
-3. Fill `data/guest.txt` with guests name in each line
-4. Run `main.py`
+3. Run the site locally:
 
    ```bash
-   python main.py
+   npm run dev
    ```
 
-5. Voila! You can share the link to your guests using
-
-   ```html
-   https://your-site.com/guest_name
-   ```
+4. Open the site at `http://localhost:3000` (home) and `http://localhost:3000/details` (details). The invitation is the same for everyone.
 
 #### Backend
 
