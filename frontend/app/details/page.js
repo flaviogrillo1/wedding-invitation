@@ -201,7 +201,6 @@ export default function DetailsPage() {
             <div className="border-custom-blue flex items-center justify-center rounded border-2 md:h-80 md:w-full lg:h-96" data-aos="zoom-in">
               <iframe
                 className="h-full w-full"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.2183765161717!2d112.6318416748081!3d-7.976367679520048!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd6283c7e9abbd3%3A0xcce9af9698d6a3a5!2sSMA%20Negeri%204%20Malang!5e0!3m2!1sen!2sid!4v1729519776499!5m2!1sen!2sid"
                 src="https://www.google.com/maps?q=Finca+Santa+Rosalia+Vizmalo&output=embed"
                 allowFullScreen
                 loading="lazy"
