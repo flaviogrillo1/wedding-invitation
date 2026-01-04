@@ -19,6 +19,7 @@ const timeline = [
 export default function HomePage() {
   const [showIntro, setShowIntro] = useState(true);
   const [introState, setIntroState] = useState("idle");
+  const [contentVisible, setContentVisible] = useState(false);
   const [muted, setMuted] = useState(false);
   const [showIban, setShowIban] = useState(false);
   const [rsvpStep, setRsvpStep] = useState("form"); // form | video | thanks
@@ -35,7 +36,8 @@ export default function HomePage() {
     const handleTime = () => {
       if (video.duration && video.duration - video.currentTime < 0.8 && introState === "playing") {
         setIntroState("fading");
-        setTimeout(() => setShowIntro(false), 600);
+        setContentVisible(true);
+        setTimeout(() => setShowIntro(false), 700);
       }
     };
     video.addEventListener("timeupdate", handleTime);
@@ -118,7 +120,7 @@ export default function HomePage() {
 
       {showIntro && (
         <div
-          className="fixed inset-0 z-40 cursor-pointer overflow-hidden bg-ivory transition-opacity"
+          className="fixed inset-0 z-40 cursor-pointer overflow-hidden bg-ivory transition-opacity duration-700"
           style={{ opacity: introState === "fading" ? 0 : 1 }}
           onClick={handleEnter}
         >
@@ -140,31 +142,37 @@ export default function HomePage() {
         </div>
       )}
 
-      <Hero onCtaClick={handleScrollToRsvp} />
-      <Countdown days={days} hours={hours} minutes={minutes} seconds={seconds} />
-      <Details />
-      <SectionSeparator />
-      <Timeline />
-      <SectionSeparator />
-      <InfoCards />
-      <SectionSeparator />
-      <Lodging />
-      <SectionSeparator />
-      <Gifts showIban={showIban} onRevealIban={() => setShowIban(true)} />
-      <SectionSeparator />
-      <Faq />
-      <SectionSeparator />
-      <Rsvp
-        onSubmit={handleSubmitRsvp}
-        attendance={attendance}
-        setAttendance={setAttendance}
-        step={rsvpStep}
-        confirmationVideoRef={confirmationVideoRef}
-        onVideoEnd={onVideoEnd}
-        isSubmitting={isSubmitting}
-        rsvpMessage={rsvpMessage}
-      />
-      <Footer />
+      <div
+        className={`relative transform-gpu transition-all duration-700 ease-out ${
+          contentVisible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"
+        }`}
+      >
+        <Hero onCtaClick={handleScrollToRsvp} />
+        <Countdown days={days} hours={hours} minutes={minutes} seconds={seconds} />
+        <Details />
+        <SectionSeparator />
+        <Timeline />
+        <SectionSeparator />
+        <InfoCards />
+        <SectionSeparator />
+        <Lodging />
+        <SectionSeparator />
+        <Gifts showIban={showIban} onRevealIban={() => setShowIban(true)} />
+        <SectionSeparator />
+        <Faq />
+        <SectionSeparator />
+        <Rsvp
+          onSubmit={handleSubmitRsvp}
+          attendance={attendance}
+          setAttendance={setAttendance}
+          step={rsvpStep}
+          confirmationVideoRef={confirmationVideoRef}
+          onVideoEnd={onVideoEnd}
+          isSubmitting={isSubmitting}
+          rsvpMessage={rsvpMessage}
+        />
+        <Footer />
+      </div>
     </main>
   );
 }
