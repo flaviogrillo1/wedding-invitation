@@ -22,6 +22,11 @@ const body = Lora({
 export const metadata = {
   title: "Boda Aitana & Flavio",
   description: "Invitación oficial a la boda de Aitana y Flavio",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+    shortcut: "/favicon.png",
+  },
 };
 
 export default function RootLayout({ children }) {

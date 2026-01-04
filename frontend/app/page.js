@@ -27,6 +27,7 @@ export default function HomePage() {
   const [totalPeople, setTotalPeople] = useState(1);
   const [persons, setPersons] = useState([{ name: "", hasAllergies: false, allergies: "" }]);
   const [busNeeded, setBusNeeded] = useState("no");
+  const [playConfirmVideo, setPlayConfirmVideo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rsvpMessage, setRsvpMessage] = useState("");
   const audioRef = useRef(null);
@@ -127,10 +128,14 @@ export default function HomePage() {
         const detail = errJson.detail || errJson.error || "Error al enviar la confirmaci?n";
         throw new Error(detail);
       }
-      setRsvpMessage("Confirmaci?n enviada. ?Gracias!");
-      setRsvpStep(payload.attendance === "yes" ? "video" : "thanks");
+      setRsvpMessage("Confirmación enviada. Gracias!");
       if (payload.attendance === "yes") {
-        confirmationVideoRef.current?.play().catch(() => setRsvpStep("thanks"));
+        setPlayConfirmVideo(true);
+        setRsvpStep("thanks");
+        setTimeout(() => confirmationVideoRef.current?.play().catch(() => {}), 50);
+      } else {
+        setPlayConfirmVideo(false);
+        setRsvpStep("thanks");
       }
     } catch (error) {
       setRsvpMessage(`No se pudo enviar: ${error.message || "Int?ntalo de nuevo."}`);
@@ -205,6 +210,7 @@ export default function HomePage() {
           setPersons={setPersons}
           busNeeded={busNeeded}
           setBusNeeded={setBusNeeded}
+          playConfirmVideo={playConfirmVideo}
           step={rsvpStep}
           confirmationVideoRef={confirmationVideoRef}
           onVideoEnd={onVideoEnd}
@@ -601,6 +607,7 @@ function Rsvp({
   setPersons,
   busNeeded,
   setBusNeeded,
+  playConfirmVideo,
   step,
   confirmationVideoRef,
   onVideoEnd,
@@ -624,27 +631,28 @@ function Rsvp({
       <div className="mx-auto max-w-3xl px-6">
         <SectionTitle title="Confirmar asistencia" subtitle="Cuéntanos si podrás acompañarnos" />
 
-        {step === 'video' && (
-          <div className="relative mb-6 overflow-hidden rounded-2xl border border-cream/70 shadow-lg">
-            <video
-              ref={confirmationVideoRef}
-              className="h-[420px] w-full object-cover"
-              src="/assets/rsvp-confirmation-DYbKwzwP.webm"
-              autoPlay
-              muted
-              playsInline
-              onEnded={onVideoEnd}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-          </div>
-        )}
-
         {step === 'thanks' ? (
           <div className="rounded-2xl border border-cream/70 bg-white/80 p-8 text-center shadow-sm">
-            <p className="font-script text-3xl text-sage-dark">Gracias!</p>
-            <p className="mt-2 font-body text-sage-dark/80">
-              Nos hace muchísima ilusión compartir este día contigo. Si necesitas algo, avísanos.
-            </p>
+            <div className="space-y-4">
+              <p className="font-script text-3xl text-sage-dark">Gracias!</p>
+              <p className="mt-2 font-body text-sage-dark/80">
+                Nos hace muchísima ilusión compartir este día contigo. Si necesitas algo, avísanos.
+              </p>
+              {playConfirmVideo && (
+                <div className="relative overflow-hidden rounded-2xl border border-cream/70 shadow-lg">
+                  <video
+                    ref={confirmationVideoRef}
+                    className="h-[420px] w-full object-cover"
+                    src="/assets/rsvp-confirmation-DYbKwzwP.webm"
+                    autoPlay
+                    muted
+                    playsInline
+                    onEnded={onVideoEnd}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border border-cream/70 bg-white/80 p-6 shadow-sm backdrop-blur">
