@@ -126,7 +126,7 @@ export default function HomePage() {
             ref={introVideoRef}
             className="h-full w-full object-cover"
             poster="/assets/intro-poster-BQrMtd4k.png"
-            src="/assets/intro-video-BpkZMtTn.mov"
+            src="/assets/videosobre.mp4"
             muted
             playsInline
             preload="auto"
