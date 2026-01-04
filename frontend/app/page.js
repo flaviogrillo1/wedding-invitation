@@ -24,6 +24,9 @@ export default function HomePage() {
   const [showIban, setShowIban] = useState(false);
   const [rsvpStep, setRsvpStep] = useState("form"); // form | video | thanks
   const [attendance, setAttendance] = useState("yes");
+  const [totalPeople, setTotalPeople] = useState(1);
+  const [persons, setPersons] = useState([{ name: "", hasAllergies: false, allergies: "" }]);
+  const [busNeeded, setBusNeeded] = useState("no");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rsvpMessage, setRsvpMessage] = useState("");
   const audioRef = useRef(null);
@@ -43,6 +46,25 @@ export default function HomePage() {
     video.addEventListener("timeupdate", handleTime);
     return () => video.removeEventListener("timeupdate", handleTime);
   }, [introState]);
+
+  useEffect(() => {
+    setPersons((prev) => {
+      if (totalPeople > prev.length) {
+        const additions = Array.from({ length: totalPeople - prev.length }, () => ({ name: "", hasAllergies: false, allergies: "" }));
+        return [...prev, ...additions];
+      }
+      if (totalPeople < prev.length) {
+        return prev.slice(0, totalPeople);
+      }
+      return prev;
+    });
+  }, [totalPeople]);
+
+  useEffect(() => {
+    if (attendance === "no") {
+      setBusNeeded("no");
+    }
+  }, [attendance]);
 
   const handleEnter = () => {
     if (introState !== "idle") return;
@@ -70,16 +92,26 @@ export default function HomePage() {
   const handleSubmitRsvp = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const attendanceValue = attendance;
+    const normalizedPersons =
+      attendanceValue === "yes"
+        ? persons.slice(0, totalPeople).map((person) => ({
+            name: person.name.trim(),
+            hasAllergies: Boolean(person.hasAllergies),
+            allergies: person.hasAllergies ? person.allergies.trim() : "",
+          }))
+        : [];
+
     const payload = {
-      name: formData.get("name")?.toString() || "",
-      email: formData.get("email")?.toString() || "",
-      attendance: formData.get("attendance")?.toString() || "yes",
-      guests: Number(formData.get("guests") || 1),
-      guestDetails: formData.get("guestDetails")?.toString() || "",
-      allergies: formData.get("allergies")?.toString() || "",
-      message: formData.get("message")?.toString() || "",
-      busFrom: formData.get("busFrom")?.toString() || "Ninguno",
-      busDirection: formData.get("busDirection")?.toString() || "No bus",
+      contactName: formData.get("contactName")?.toString().trim() || "",
+      contactEmail: formData.get("contactEmail")?.toString().trim() || "",
+      attendance: attendanceValue,
+      totalPeople: attendanceValue === "yes" ? totalPeople : 0,
+      persons: normalizedPersons,
+      busNeeded: attendanceValue === "yes" && busNeeded === "yes",
+      busOrigin: attendanceValue === "yes" && busNeeded === "yes" ? formData.get("busOrigin")?.toString() || "" : "",
+      busTrip: attendanceValue === "yes" && busNeeded === "yes" ? formData.get("busTrip")?.toString() || "" : "",
+      message: formData.get("message")?.toString().trim() || "",
     };
 
     try {
@@ -91,15 +123,17 @@ export default function HomePage() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        throw new Error("Error al enviar la confirmación");
+        const errJson = await res.json().catch(() => ({}));
+        const detail = errJson.detail || errJson.error || "Error al enviar la confirmaci?n";
+        throw new Error(detail);
       }
-      setRsvpMessage("Confirmación enviada. ¡Gracias!");
+      setRsvpMessage("Confirmaci?n enviada. ?Gracias!");
       setRsvpStep(payload.attendance === "yes" ? "video" : "thanks");
       if (payload.attendance === "yes") {
         confirmationVideoRef.current?.play().catch(() => setRsvpStep("thanks"));
       }
     } catch (error) {
-      setRsvpMessage("No se pudo enviar. Inténtalo de nuevo.");
+      setRsvpMessage(`No se pudo enviar: ${error.message || "Int?ntalo de nuevo."}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -165,6 +199,12 @@ export default function HomePage() {
           onSubmit={handleSubmitRsvp}
           attendance={attendance}
           setAttendance={setAttendance}
+          totalPeople={totalPeople}
+          setTotalPeople={setTotalPeople}
+          persons={persons}
+          setPersons={setPersons}
+          busNeeded={busNeeded}
+          setBusNeeded={setBusNeeded}
           step={rsvpStep}
           confirmationVideoRef={confirmationVideoRef}
           onVideoEnd={onVideoEnd}
@@ -550,13 +590,41 @@ function Faq() {
   );
 }
 
-function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef, onVideoEnd, isSubmitting, rsvpMessage }) {
+
+function Rsvp({
+  onSubmit,
+  attendance,
+  setAttendance,
+  totalPeople,
+  setTotalPeople,
+  persons,
+  setPersons,
+  busNeeded,
+  setBusNeeded,
+  step,
+  confirmationVideoRef,
+  onVideoEnd,
+  isSubmitting,
+  rsvpMessage,
+}) {
+  const handlePersonFieldChange = (index, field, value) => {
+    setPersons((prev) => prev.map((person, idx) => (idx === index ? { ...person, [field]: value } : person)));
+  };
+
+  const handleAllergyToggle = (index, hasAllergies) => {
+    setPersons((prev) =>
+      prev.map((person, idx) =>
+        idx === index ? { ...person, hasAllergies, allergies: hasAllergies ? person.allergies : '' } : person
+      )
+    );
+  };
+
   return (
     <section className="bg-ivory py-16 sm:py-20" id="rsvp">
       <div className="mx-auto max-w-3xl px-6">
         <SectionTitle title="Confirmar asistencia" subtitle="Cuéntanos si podrás acompañarnos" />
 
-        {step === "video" && (
+        {step === 'video' && (
           <div className="relative mb-6 overflow-hidden rounded-2xl border border-cream/70 shadow-lg">
             <video
               ref={confirmationVideoRef}
@@ -571,9 +639,9 @@ function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef,
           </div>
         )}
 
-        {step === "thanks" ? (
+        {step === 'thanks' ? (
           <div className="rounded-2xl border border-cream/70 bg-white/80 p-8 text-center shadow-sm">
-            <p className="font-script text-3xl text-sage-dark">¡Gracias!</p>
+            <p className="font-script text-3xl text-sage-dark">Gracias!</p>
             <p className="mt-2 font-body text-sage-dark/80">
               Nos hace muchísima ilusión compartir este día contigo. Si necesitas algo, avísanos.
             </p>
@@ -582,87 +650,178 @@ function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef,
           <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border border-cream/70 bg-white/80 p-6 shadow-sm backdrop-blur">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-                Nombre completo
-                <input required className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm" placeholder="Tu nombre" name="name" />
-              </label>
-              <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-                Email
-                <input className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm" placeholder="Opcional" name="email" />
-              </label>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-                Asistencia
-                <select
-                  className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
-                  value={attendance}
-                  onChange={(e) => setAttendance(e.target.value)}
-                  name="attendance"
-                >
-                  <option value="yes">Sí, asistiré</option>
-                  <option value="no">No podré asistir</option>
-                </select>
-              </label>
-              <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-                Número de acompañantes (además de ti)
+                Nombre y apellidos del contacto
                 <input
-                  type="number"
-                  min={0}
-                  defaultValue={0}
+                  required
                   className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
-                  name="guests"
+                  placeholder="Tu nombre"
+                  name="contactName"
                 />
               </label>
-            </div>
-
-            <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-              Nombres y alergias de acompañantes
-              <textarea
-                className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
-                rows={3}
-                placeholder="Ej: Ana Pérez - sin gluten; Luis Gómez - sin lactosa"
-                name="guestDetails"
-              />
-            </label>
-
-            <div className="grid gap-4 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-                Bus (origen)
-                <select className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm" name="busFrom" defaultValue="Ninguno">
-                  <option value="Ninguno">No necesito bus</option>
-                  <option value="Burgos">Burgos</option>
-                  <option value="Villalmanzo">Villalmanzo</option>
-                  <option value="Lerma">Lerma</option>
-                </select>
-              </label>
-              <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-                Trayecto bus
-                <select className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm" name="busDirection" defaultValue="No bus">
-                  <option value="No bus">No necesito bus</option>
-                  <option value="Ida y vuelta">Ida y vuelta</option>
-                  <option value="Solo ida">Solo ida</option>
-                  <option value="Solo vuelta">Solo vuelta</option>
-                </select>
+                Email de contacto (opcional)
+                <input className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm" placeholder="Email" name="contactEmail" />
               </label>
             </div>
 
-            <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-              Alergias o restricciones (tuya)
-              <textarea
-                className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
-                rows={2}
-                placeholder="Especifica alergias/intolerancias"
-                name="allergies"
-              />
-            </label>
+            <div className="space-y-3 rounded-lg border border-cream/70 bg-ivory/50 p-4">
+              <p className="text-sm font-display text-sage-dark">¿Asistirás a la boda?</p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+                <label className="inline-flex items-center gap-2 text-sm text-sage-dark">
+                  <input
+                    type="radio"
+                    name="attendance"
+                    value="yes"
+                    checked={attendance === 'yes'}
+                    onChange={() => setAttendance('yes')}
+                  />
+                  Sí
+                </label>
+                <label className="inline-flex items-center gap-2 text-sm text-sage-dark">
+                  <input
+                    type="radio"
+                    name="attendance"
+                    value="no"
+                    checked={attendance === 'no'}
+                    onChange={() => setAttendance('no')}
+                  />
+                  No
+                </label>
+              </div>
+            </div>
+
+            {attendance === 'yes' && (
+              <>
+                <div className="flex flex-col gap-2 text-sm font-display text-sage-dark">
+                  ¿Cuántas personas asistiréis en total? (incluyéndote)
+                  <select
+                    name="totalPeople"
+                    className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
+                    value={totalPeople}
+                    onChange={(e) => setTotalPeople(Number(e.target.value))}
+                  >
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-4">
+                  {persons.map((person, idx) => (
+                    <div key={idx} className="rounded-lg border border-cream/70 bg-ivory/60 p-4 shadow-sm">
+                      <div className="flex items-center justify-between text-sage-dark">
+                        <p className="font-display text-base">Persona {idx + 1}</p>
+                      </div>
+                      <div className="mt-3 grid gap-3 md:grid-cols-2">
+                        <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
+                          Nombre y apellidos
+                          <input
+                            required
+                            name={`person-${idx}-name`}
+                            className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
+                            value={person.name}
+                            onChange={(e) => handlePersonFieldChange(idx, 'name', e.target.value)}
+                          />
+                        </label>
+                        <div className="flex flex-col gap-2 text-sm font-display text-sage-dark">
+                          ¿Tiene alergias o intolerancias?
+                          <div className="flex flex-wrap items-center gap-3">
+                            <label className="inline-flex items-center gap-2 text-sage-dark">
+                              <input
+                                type="radio"
+                                name={`hasAllergies-${idx}`}
+                                value="no"
+                                checked={!person.hasAllergies}
+                                onChange={() => handleAllergyToggle(idx, false)}
+                              />
+                              No
+                            </label>
+                            <label className="inline-flex items-center gap-2 text-sage-dark">
+                              <input
+                                type="radio"
+                                name={`hasAllergies-${idx}`}
+                                value="yes"
+                                checked={person.hasAllergies}
+                                onChange={() => handleAllergyToggle(idx, true)}
+                              />
+                              Sí
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      {person.hasAllergies && (
+                        <label className="mt-3 flex flex-col gap-2 text-sm font-display text-sage-dark">
+                          Especifica (texto corto)
+                          <input
+                            name={`allergies-${idx}`}
+                            className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
+                            value={person.allergies}
+                            onChange={(e) => handlePersonFieldChange(idx, 'allergies', e.target.value)}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-3 rounded-lg border border-cream/70 bg-ivory/50 p-4">
+                  <p className="text-sm font-display text-sage-dark">¿Necesitáis autobús?</p>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+                    <label className="inline-flex items-center gap-2 text-sm text-sage-dark">
+                      <input
+                        type="radio"
+                        name="busNeeded"
+                        value="yes"
+                        checked={busNeeded === 'yes'}
+                        onChange={() => setBusNeeded('yes')}
+                      />
+                      Sí
+                    </label>
+                    <label className="inline-flex items-center gap-2 text-sm text-sage-dark">
+                      <input
+                        type="radio"
+                        name="busNeeded"
+                        value="no"
+                        checked={busNeeded === 'no'}
+                        onChange={() => setBusNeeded('no')}
+                      />
+                      No
+                    </label>
+                  </div>
+
+                  {busNeeded === 'yes' && (
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
+                        Origen del bus
+                        <select name="busOrigin" className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm">
+                          <option value="Burgos">Burgos</option>
+                          <option value="Lerma">Lerma</option>
+                          <option value="Villalmanzo">Villalmanzo</option>
+                          <option value="Revilla-Cabriada">Revilla-Cabriada</option>
+                        </select>
+                      </label>
+                      <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
+                        Trayecto
+                        <select name="busTrip" className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm">
+                          <option value="Ida y vuelta">Ida y vuelta</option>
+                          <option value="Solo ida">Solo ida</option>
+                          <option value="Solo vuelta">Solo vuelta</option>
+                        </select>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
             <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-              Mensaje para los novios
+              Mensaje para los novios (opcional)
               <textarea
                 className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
                 rows={3}
-                placeholder="Nos encantará leerte"
+                placeholder="Nos encantaría leerte"
                 name="message"
               />
             </label>
@@ -672,7 +831,7 @@ function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef,
               disabled={isSubmitting}
               className="w-full rounded-full bg-sage-dark px-6 py-3 text-sm font-display text-ivory transition hover:-translate-y-1 hover:bg-sage disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Enviando..." : "Enviar confirmación"}
+              {isSubmitting ? 'Enviando...' : 'Enviar formulario'}
             </button>
             {rsvpMessage && <p className="text-center text-sm text-sage-dark/80">{rsvpMessage}</p>}
           </form>
@@ -681,7 +840,6 @@ function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef,
     </section>
   );
 }
-
 function Footer() {
   return (
     <footer className="bg-sage-dark py-12 text-center text-ivory">
