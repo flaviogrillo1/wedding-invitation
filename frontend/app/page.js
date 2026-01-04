@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const WEDDING_DATE = "2026-06-06T12:00:00";
-const CEREMONY_LOCATION = "Iglesia de Santa Elena, Revilla Cabriada (Burgos)";
+const CEREMONY_LOCATION = "Iglesia de Santa Elena, Revilla-Cabriada (Burgos)";
 const RECEPTION_LOCATION = "Finca Santa Rosalía, Vizmalo (Burgos)";
 
 const timeline = [
@@ -23,6 +23,8 @@ export default function HomePage() {
   const [showIban, setShowIban] = useState(false);
   const [rsvpStep, setRsvpStep] = useState("form"); // form | video | thanks
   const [attendance, setAttendance] = useState("yes");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rsvpMessage, setRsvpMessage] = useState("");
   const audioRef = useRef(null);
   const introVideoRef = useRef(null);
   const confirmationVideoRef = useRef(null);
@@ -63,11 +65,41 @@ export default function HomePage() {
     document.getElementById("rsvp")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSubmitRsvp = (event) => {
+  const handleSubmitRsvp = async (event) => {
     event.preventDefault();
-    setRsvpStep(attendance === "yes" ? "video" : "thanks");
-    if (attendance === "yes") {
-      confirmationVideoRef.current?.play().catch(() => setRsvpStep("thanks"));
+    const formData = new FormData(event.currentTarget);
+    const payload = {
+      name: formData.get("name")?.toString() || "",
+      email: formData.get("email")?.toString() || "",
+      attendance: formData.get("attendance")?.toString() || "yes",
+      guests: Number(formData.get("guests") || 1),
+      guestDetails: formData.get("guestDetails")?.toString() || "",
+      allergies: formData.get("allergies")?.toString() || "",
+      message: formData.get("message")?.toString() || "",
+      busFrom: formData.get("busFrom")?.toString() || "Ninguno",
+      busDirection: formData.get("busDirection")?.toString() || "No bus",
+    };
+
+    try {
+      setIsSubmitting(true);
+      setRsvpMessage("");
+      const res = await fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        throw new Error("Error al enviar la confirmación");
+      }
+      setRsvpMessage("Confirmación enviada. ¡Gracias!");
+      setRsvpStep(payload.attendance === "yes" ? "video" : "thanks");
+      if (payload.attendance === "yes") {
+        confirmationVideoRef.current?.play().catch(() => setRsvpStep("thanks"));
+      }
+    } catch (error) {
+      setRsvpMessage("No se pudo enviar. Inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -114,13 +146,15 @@ export default function HomePage() {
       <SectionSeparator />
       <Details />
       <SectionSeparator />
-      <Venues />
-      <SectionSeparator />
       <Timeline />
       <SectionSeparator />
       <InfoCards />
       <SectionSeparator />
+      <Lodging />
+      <SectionSeparator />
       <Gifts showIban={showIban} onRevealIban={() => setShowIban(true)} />
+      <SectionSeparator />
+      <Faq />
       <SectionSeparator />
       <Rsvp
         onSubmit={handleSubmitRsvp}
@@ -129,6 +163,8 @@ export default function HomePage() {
         step={rsvpStep}
         confirmationVideoRef={confirmationVideoRef}
         onVideoEnd={onVideoEnd}
+        isSubmitting={isSubmitting}
+        rsvpMessage={rsvpMessage}
       />
       <Footer />
     </main>
@@ -188,11 +224,15 @@ function Hero({ onCtaClick }) {
 }
 
 function Countdown({ days, hours, minutes, seconds }) {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+  const safe = (v) => (isClient ? v : "--");
+
   const items = [
-    { label: "Días", value: days },
-    { label: "Horas", value: hours },
-    { label: "Minutos", value: minutes },
-    { label: "Segundos", value: seconds },
+    { label: "Días", value: safe(days) },
+    { label: "Horas", value: safe(hours) },
+    { label: "Minutos", value: safe(minutes) },
+    { label: "Segundos", value: safe(seconds) },
   ];
 
   return (
@@ -217,128 +257,83 @@ function Countdown({ days, hours, minutes, seconds }) {
 }
 
 function Details() {
-  const calendarUrl = buildCalendarUrl("Boda Aitana & Flavio - Ceremonia", WEDDING_DATE, CEREMONY_LOCATION);
-  const celebrationCalendar = buildCalendarUrl("Celebración en Finca Santa Rosalía", WEDDING_DATE, RECEPTION_LOCATION);
+  const calendarUrl = buildCalendarUrl("Ceremonia - Aitana & Flavio", WEDDING_DATE, CEREMONY_LOCATION);
+  const celebrationCalendar = buildCalendarUrl("Celebración - Aitana & Flavio", WEDDING_DATE, RECEPTION_LOCATION);
 
   return (
     <section className="bg-ivory py-16 sm:py-20" id="detalles">
-      <div className="mx-auto max-w-5xl px-6">
-        <SectionTitle title="Detalles del día" subtitle="Todo lo que necesitas saber" />
-        <div className="overflow-hidden rounded-2xl border border-cream/60 bg-white/80 shadow-lg">
-          <div className="grid items-center gap-8 md:grid-cols-2">
-            <div className="p-8">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sage/20 text-sage-dark">
-                <span className="text-xl">📍</span>
+      <div className="mx-auto max-w-6xl px-6">
+        <SectionTitle title="Lugares" subtitle="Ceremonia y celebración" />
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="overflow-hidden rounded-2xl border border-cream/70 bg-white/80 shadow-sm">
+            <img
+              src="https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx94tRebQJlJdKCjH446ixgDhTGYfZxfQowKZpc4uM6-IKhgfGKQQotGDcq3fi00gdG3bgUemYks4eJ85eK-f4-i8FQSY3VHAWUbuXOFtseJDY25wrIlNrIUATEg7lrupgAja8KjQ=s1360-w1360-h1020-rw"
+              alt="Iglesia de Santa Elena en Revilla-Cabriada"
+              className="h-56 w-full object-cover"
+            />
+            <div className="space-y-3 p-6">
+              <div className="flex items-center justify-between">
+                <p className="font-display text-xl text-sage-dark">Iglesia de Santa Elena</p>
+                <span className="rounded-full bg-sage/20 px-3 py-1 text-xs font-display text-sage-dark">11:30 · 12:00</span>
               </div>
-              <h3 className="mt-4 font-display text-2xl text-sage-dark">Iglesia de Santa Elena</h3>
-              <p className="mt-2 font-body text-sage-dark/80">Revilla Cabriada · Burgos</p>
-              <p className="mt-4 font-body text-sm text-sage-dark/70">
-                Ceremonia religiosa en la iglesia de Santa Elena. Tras la ceremonia nos desplazamos a Finca Santa Rosalía en Vizmalo para
-                el cóctel, la comida y la fiesta.
+              <p className="text-sm text-sage-dark/70">Revilla-Cabriada (Burgos)</p>
+              <p className="text-sm text-sage-dark/80">
+                Llegada de invitados a las 11:30, boda a las 12:00. Después, bus a la finca a las 13:15.
               </p>
-              <div className="mt-6 flex flex-col gap-3 text-sm font-display text-sage-dark">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">🕑</span>
-                  <span>17:00 h — 01:00 h</span>
-                </div>
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <a
-                    href="https://www.google.com/maps?q=Iglesia+de+Santa+Elena+Revilla+Cabriada&output=embed"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full rounded-full border border-sage-dark/40 px-4 py-2 text-center text-sage-dark transition hover:bg-sage-dark hover:text-ivory sm:w-auto"
-                  >
-                    Ceremonia
-                  </a>
-                  <a
-                    href="https://www.google.com/maps?q=Finca+Santa+Rosal%C3%ADa+Vizmalo&output=embed"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full rounded-full border border-sage-dark/40 px-4 py-2 text-center text-sage-dark transition hover:bg-sage-dark hover:text-ivory sm:w-auto"
-                  >
-                    Celebración
-                  </a>
-                  <a
-                    href={calendarUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full rounded-full border border-sage-dark/40 px-4 py-2 text-center text-sage-dark transition hover:bg-sage-dark hover:text-ivory sm:w-auto"
-                  >
-                    Añadir ceremonia
-                  </a>
-                  <a
-                    href={celebrationCalendar}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full rounded-full border border-sage-dark/40 px-4 py-2 text-center text-sage-dark transition hover:bg-sage-dark hover:text-ivory sm:w-auto"
-                  >
-                    Añadir celebración
-                  </a>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href="https://www.google.com/maps?q=Iglesia+de+Santa+Elena+Revilla-Cabriada&hl=es&output=embed"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+                >
+                  Ver en mapa
+                </a>
+                <a
+                  href={calendarUrl}
+                  download="ceremonia.ics"
+                  className="rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+                >
+                  Añadir a calendario
+                </a>
               </div>
-            </div>
-            <div className="relative overflow-hidden">
-              <img
-                src="/assets/finca-biniagual-tpK1hn9e.webp"
-                alt="Finca Santa Rosalía"
-                className="h-full w-full object-cover transition duration-700 hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
             </div>
           </div>
-          <iframe
-            title="Mapa Finca Santa Rosalía"
-            src="https://www.google.com/maps?q=Finca+Santa+Rosal%C3%ADa+Vizmalo&output=embed"
-            className="h-72 w-full border-t border-cream/60"
-            loading="lazy"
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function Venues() {
-  const cards = [
-    {
-      title: "Iglesia de Santa Elena",
-      location: "Revilla Cabriada, Burgos",
-      time: "11:30 - 13:00",
-      image: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Iglesia_de_Santa_Elena%2C_Revilla_Cabriada.jpg",
-      description: "Llegada de invitados y ceremonia.",
-      map: "https://www.google.com/maps?q=Iglesia+de+Santa+Elena+Revilla+Cabriada&output=embed",
-    },
-    {
-      title: "Finca Santa Rosalía",
-      location: "Vizmalo, Burgos",
-      time: "14:00 - 02:00",
-      image: "https://fincasantarosalia.com/wp-content/uploads/2023/01/bodas_en_la_finca_santa_rosalia.jpg",
-      description: "Bus desde la iglesia, cóctel, comida y fiesta con DJ.",
-      map: "https://www.google.com/maps?q=Finca+Santa+Rosalia+Vizmalo&output=embed",
-    },
-  ];
-
-  return (
-    <section className="bg-ivory py-16 sm:py-20">
-      <div className="mx-auto max-w-6xl px-6">
-        <SectionTitle title="Lugares" subtitle="Dos paradas, un mismo día inolvidable" />
-        <div className="grid gap-6 md:grid-cols-2">
-          {cards.map((card) => (
-            <div key={card.title} className="overflow-hidden rounded-2xl border border-cream/70 bg-white/80 shadow-sm">
-              <img src={card.image} alt={card.title} className="h-56 w-full object-cover" />
-              <div className="space-y-2 p-6">
-                <div className="flex items-center justify-between">
-                  <p className="font-display text-xl text-sage-dark">{card.title}</p>
-                  <span className="rounded-full bg-sage/20 px-3 py-1 text-xs font-display text-sage-dark">{card.time}</span>
-                </div>
-                <p className="text-sm text-sage-dark/70">{card.location}</p>
-                <p className="text-sm text-sage-dark/80">{card.description}</p>
-                <div className="overflow-hidden rounded-lg border border-cream/60">
-                  <iframe title={card.title} src={card.map} className="h-48 w-full" loading="lazy" />
-                </div>
+          <div className="overflow-hidden rounded-2xl border border-cream/70 bg-white/80 shadow-sm">
+            <img
+              src="https://www.fincasantarosalia.com/wp-content/uploads/2024/01/Restaurante_1-1-scaled.jpg"
+              alt="Finca Santa Rosalía"
+              className="h-56 w-full object-cover"
+            />
+            <div className="space-y-3 p-6">
+              <div className="flex items-center justify-between">
+                <p className="font-display text-xl text-sage-dark">Finca Santa Rosalía</p>
+                <span className="rounded-full bg-sage/20 px-3 py-1 text-xs font-display text-sage-dark">14:00 · 02:00</span>
+              </div>
+              <p className="text-sm text-sage-dark/70">Vizmalo (Burgos)</p>
+              <p className="text-sm text-sage-dark/80">
+                Bus desde la iglesia 13:15. Cóctel en jardines 14:00, comida 16:00, chill out y fiesta con DJ hasta tarde.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href="https://www.google.com/maps?q=Finca+Santa+Rosalia+Vizmalo&hl=es&output=embed"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+                >
+                  Ver en mapa
+                </a>
+                <a
+                  href={celebrationCalendar}
+                  download="celebracion.ics"
+                  className="rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+                >
+                  Añadir a calendario
+                </a>
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>
@@ -398,8 +393,13 @@ function InfoCards() {
     },
     {
       title: "Alojamiento",
-      body: "Hay hoteles rurales y casas cerca de Revilla Cabriada y Vizmalo, y más opciones en Burgos capital. Te ayudamos con recomendaciones si lo necesitas.",
+      body: "Hay hoteles rurales y casas cerca de Revilla-Cabriada y Vizmalo, y más opciones en Burgos capital. Te ayudamos con recomendaciones si lo necesitas.",
       icon: "🏡",
+    },
+    {
+      title: "Buses",
+      body: "Habrá buses desde Burgos, Villalmanzo y Lerma hacia Revilla-Cabriada para la ceremonia, luego a la finca y vuelta a cada origen.",
+      icon: "🚌",
     },
   ];
 
@@ -426,7 +426,7 @@ function InfoCards() {
 
 function Gifts({ showIban, onRevealIban }) {
   return (
-    <section className="bg-cream py-16 sm:py-20">
+    <section className="bg-ivory py-16 sm:py-20">
       <div className="mx-auto max-w-3xl px-6 text-center">
         <SectionTitle title="Regalos" subtitle="Tu presencia es nuestro mayor regalo" />
         <p className="font-body text-base text-sage-dark/80">
@@ -456,7 +456,78 @@ function Gifts({ showIban, onRevealIban }) {
   );
 }
 
-function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef, onVideoEnd }) {
+function Lodging() {
+  const hotels = [
+    {
+      name: "Silken Burgos",
+      location: "Burgos",
+      link: "https://www.hoteles-silken.com/es/hotel-burgos/",
+      note: "Hotel céntrico, perfecto para conectar con el bus.",
+    },
+    {
+      name: "Parador de Lerma",
+      location: "Lerma",
+      link: "https://paradores.es/es/parador-de-lerma",
+      note: "Parador histórico con encanto a pocos minutos de las rutas de bus.",
+    },
+  ];
+
+  return (
+    <section className="bg-cream py-16 sm:py-20">
+      <div className="mx-auto max-w-5xl px-6">
+        <SectionTitle title="Alojamientos" subtitle="Opciones cercanas para descansar" />
+        <div className="grid gap-4 md:grid-cols-2">
+          {hotels.map((hotel) => (
+            <div
+              key={hotel.name}
+              className="rounded-2xl border border-cream/70 bg-white/80 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+            >
+              <p className="font-display text-xl text-sage-dark">{hotel.name}</p>
+              <p className="text-sm text-sage-dark/70">{hotel.location}</p>
+              <p className="mt-2 text-sm text-sage-dark/80">{hotel.note}</p>
+              <a
+                href={hotel.link}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-block rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+              >
+                Ver web
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Faq() {
+  const items = [
+    { q: "¿Dónde salen los buses?", a: "Desde Burgos, Villalmanzo y Lerma hacia Revilla-Cabriada; luego a la finca y vuelta a cada origen." },
+    { q: "¿A qué hora llego a la iglesia?", a: "Llegada 11:30; ceremonia a las 12:00. El bus a la finca sale a las 13:15." },
+    { q: "Dress code", a: "Elegante de verano. Evita blanco y marfil." },
+    { q: "Niños", a: "Bienvenidos. Tendremos zona infantil y cuidadoras." },
+    { q: "Alergias", a: "Indícalas en el formulario de RSVP." },
+  ];
+
+  return (
+    <section className="bg-ivory py-16 sm:py-20">
+      <div className="mx-auto max-w-5xl px-6">
+        <SectionTitle title="FAQ" subtitle="Preguntas frecuentes" />
+        <div className="grid gap-4 md:grid-cols-2">
+          {items.map((item) => (
+            <div key={item.q} className="rounded-2xl border border-cream/70 bg-white/80 p-4 shadow-sm">
+              <p className="font-display text-lg text-sage-dark">{item.q}</p>
+              <p className="text-sm text-sage-dark/70">{item.a}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef, onVideoEnd, isSubmitting, rsvpMessage }) {
   return (
     <section className="bg-ivory py-16 sm:py-20" id="rsvp">
       <div className="mx-auto max-w-3xl px-6">
@@ -485,19 +556,11 @@ function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef,
             </p>
           </div>
         ) : (
-          <form
-            onSubmit={onSubmit}
-            className="space-y-6 rounded-2xl border border-cream/70 bg-white/80 p-6 shadow-sm backdrop-blur"
-          >
+          <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border border-cream/70 bg-white/80 p-6 shadow-sm backdrop-blur">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
                 Nombre completo
-                <input
-                  required
-                  className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
-                  placeholder="Tu nombre"
-                  name="name"
-                />
+                <input required className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm" placeholder="Tu nombre" name="name" />
               </label>
               <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
                 Email
@@ -512,17 +575,18 @@ function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef,
                   className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
                   value={attendance}
                   onChange={(e) => setAttendance(e.target.value)}
+                  name="attendance"
                 >
                   <option value="yes">Sí, asistiré</option>
                   <option value="no">No podré asistir</option>
                 </select>
               </label>
               <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-                Número de acompañantes
+                Número de acompañantes (además de ti)
                 <input
                   type="number"
-                  min={1}
-                  defaultValue={1}
+                  min={0}
+                  defaultValue={0}
                   className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
                   name="guests"
                 />
@@ -530,11 +594,42 @@ function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef,
             </div>
 
             <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
-              Alergias o restricciones
+              Nombres y alergias de acompañantes
               <textarea
                 className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
                 rows={3}
-                placeholder="Cuéntanos lo que necesitemos saber"
+                placeholder="Ej: Ana Pérez - sin gluten; Luis Gómez - sin lactosa"
+                name="guestDetails"
+              />
+            </label>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
+                Bus (origen)
+                <select className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm" name="busFrom" defaultValue="Ninguno">
+                  <option value="Ninguno">No necesito bus</option>
+                  <option value="Burgos">Burgos</option>
+                  <option value="Villalmanzo">Villalmanzo</option>
+                  <option value="Lerma">Lerma</option>
+                </select>
+              </label>
+              <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
+                Trayecto bus
+                <select className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm" name="busDirection" defaultValue="No bus">
+                  <option value="No bus">No necesito bus</option>
+                  <option value="Ida y vuelta">Ida y vuelta</option>
+                  <option value="Solo ida">Solo ida</option>
+                  <option value="Solo vuelta">Solo vuelta</option>
+                </select>
+              </label>
+            </div>
+
+            <label className="flex flex-col gap-2 text-sm font-display text-sage-dark">
+              Alergias o restricciones (tuya)
+              <textarea
+                className="rounded-md border border-cream/70 bg-ivory px-3 py-2 text-sm"
+                rows={2}
+                placeholder="Especifica alergias/intolerancias"
                 name="allergies"
               />
             </label>
@@ -551,10 +646,12 @@ function Rsvp({ onSubmit, attendance, setAttendance, step, confirmationVideoRef,
 
             <button
               type="submit"
-              className="w-full rounded-full bg-sage-dark px-6 py-3 text-sm font-display text-ivory transition hover:-translate-y-1 hover:bg-sage"
+              disabled={isSubmitting}
+              className="w-full rounded-full bg-sage-dark px-6 py-3 text-sm font-display text-ivory transition hover:-translate-y-1 hover:bg-sage disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Enviar confirmación
+              {isSubmitting ? "Enviando..." : "Enviar confirmación"}
             </button>
+            {rsvpMessage && <p className="text-center text-sm text-sage-dark/80">{rsvpMessage}</p>}
           </form>
         )}
       </div>
@@ -595,9 +692,35 @@ function SectionSeparator() {
 
 function buildCalendarUrl(title, isoDate, location) {
   const start = new Date(isoDate);
-  const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
-  const format = (date) => date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${format(start)}/${format(
-    end,
-  )}&location=${encodeURIComponent(location)}&details=${encodeURIComponent("Celebración de la boda de Aitana y Flavio")}`;
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+
+  const toDate = (date) => {
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const d = String(date.getUTCDate()).padStart(2, "0");
+    return `${y}${m}${d}`;
+  };
+
+  const dtstamp = toDate(new Date()) + "T000000Z";
+  const dtstart = toDate(start);
+  const dtend = toDate(end);
+
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Boda Aitana y Flavio//ES",
+    "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    `UID:${title}-${dtstart}@boda-aitana-flavio`,
+    `DTSTAMP:${dtstamp}`,
+    `DTSTART;VALUE=DATE:${dtstart}`,
+    `DTEND;VALUE=DATE:${dtend}`,
+    `SUMMARY:${title}`,
+    `LOCATION:${location}`,
+    "DESCRIPTION:Celebración de la boda de Aitana y Flavio",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
 }
