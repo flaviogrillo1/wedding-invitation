@@ -461,13 +461,13 @@ function Lodging() {
     {
       name: "Silken Burgos",
       location: "Burgos",
-      link: "https://www.hoteles-silken.com/es/hotel-burgos/",
+      link: "https://www.hoteles-silken.com/es/hotel-gran-teatro-burgos/",
       note: "Hotel céntrico, perfecto para conectar con el bus.",
     },
     {
       name: "Parador de Lerma",
       location: "Lerma",
-      link: "https://paradores.es/es/parador-de-lerma",
+      link: "https://paradores.es/es/reservas/parador/110",
       note: "Parador histórico con encanto a pocos minutos de las rutas de bus.",
     },
   ];
