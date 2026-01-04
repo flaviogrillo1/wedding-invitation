@@ -177,22 +177,22 @@ export default function DetailsPage() {
               <div className="text-custom-blue flex flex-col items-center gap-1" data-aos="fade-up">
                 <h3 className="text-custom-gold text-3xl font-bold lg:text-4xl">Ceremonia</h3>
                 <p className="text-base lg:text-lg">
-                  Sabado, 6 de junio de 2026
+                  Sábado, 6 de junio de 2026
                 </p>
-                <p className="text-lg font-bold lg:text-xl">17:00 - 18:00</p>
+                <p className="text-lg font-bold lg:text-xl">11:30 - 13:00</p>
                 <div className="leading-none">
                   <p className="text-lg font-bold lg:text-xl">Iglesia de Santa Elena</p>
                   <p className="text-base lg:text-lg">Revilla Cabriada (Burgos)</p>
                 </div>
               </div>
               <div className="text-custom-blue flex flex-col items-center gap-1" data-aos="fade-up">
-                <h3 className="text-custom-gold text-3xl font-bold lg:text-4xl">Recepcion</h3>
+                <h3 className="text-custom-gold text-3xl font-bold lg:text-4xl">Recepción</h3>
                 <p className="text-base lg:text-lg">
-                  Sabado, 6 de junio de 2026
+                  Sábado, 6 de junio de 2026
                 </p>
-                <p className="text-lg font-bold lg:text-xl">19:00 - 01:00</p>
+                <p className="text-lg font-bold lg:text-xl">14:00 - 02:00</p>
                 <div className="leading-none">
-                  <p className="text-lg font-bold lg:text-xl">Finca Santa Rosalia</p>
+                  <p className="text-lg font-bold lg:text-xl">Finca Santa Rosalía</p>
                   <p className="text-base lg:text-lg">Vizmalo (Burgos)</p>
                 </div>
               </div>

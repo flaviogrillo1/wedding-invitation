@@ -2,17 +2,18 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const WEDDING_DATE = "2026-06-06T17:00:00";
+const WEDDING_DATE = "2026-06-06T12:00:00";
 const CEREMONY_LOCATION = "Iglesia de Santa Elena, Revilla Cabriada (Burgos)";
 const RECEPTION_LOCATION = "Finca Santa Rosalía, Vizmalo (Burgos)";
 
 const timeline = [
-  { time: "17:00", title: "Llegada de invitados", description: "Recepción y bienvenida en la finca" },
-  { time: "17:30", title: "Welcome drink", description: "Brindis y aperitivo mientras nos saludamos" },
-  { time: "18:00", title: "Ceremonia", description: "Nuestro momento más especial" },
-  { time: "19:00", title: "Cóctel", description: "Aperitivos en los jardines" },
-  { time: "21:00", title: "Banquete", description: "Cena y celebración" },
-  { time: "00:00", title: "Fiesta", description: "¡A bailar hasta el amanecer!" },
+  { time: "11:30", title: "Llegada invitados", description: "Os esperamos en la iglesia" },
+  { time: "12:00", title: "Ceremonia", description: "Boda en Iglesia de Santa Elena" },
+  { time: "13:15", title: "Bus a la finca", description: "Traslado a Finca Santa Rosalía" },
+  { time: "14:00", title: "Cóctel en jardines", description: "Brindis y aperitivos al aire libre" },
+  { time: "16:00", title: "Comida", description: "Banquete en la finca" },
+  { time: "18:00", title: "Chill out", description: "Relax entre viñedos" },
+  { time: "21:00", title: "Fiesta con DJ", description: "A bailar hasta que el cuerpo aguante" },
 ];
 
 export default function HomePage() {
@@ -112,6 +113,8 @@ export default function HomePage() {
       <Countdown days={days} hours={hours} minutes={minutes} seconds={seconds} />
       <SectionSeparator />
       <Details />
+      <SectionSeparator />
+      <Venues />
       <SectionSeparator />
       <Timeline />
       <SectionSeparator />
@@ -289,6 +292,53 @@ function Details() {
             className="h-72 w-full border-t border-cream/60"
             loading="lazy"
           />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Venues() {
+  const cards = [
+    {
+      title: "Iglesia de Santa Elena",
+      location: "Revilla Cabriada, Burgos",
+      time: "11:30 - 13:00",
+      image: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Iglesia_de_Santa_Elena%2C_Revilla_Cabriada.jpg",
+      description: "Llegada de invitados y ceremonia.",
+      map: "https://www.google.com/maps?q=Iglesia+de+Santa+Elena+Revilla+Cabriada&output=embed",
+    },
+    {
+      title: "Finca Santa Rosalía",
+      location: "Vizmalo, Burgos",
+      time: "14:00 - 02:00",
+      image: "https://fincasantarosalia.com/wp-content/uploads/2023/01/bodas_en_la_finca_santa_rosalia.jpg",
+      description: "Bus desde la iglesia, cóctel, comida y fiesta con DJ.",
+      map: "https://www.google.com/maps?q=Finca+Santa+Rosalia+Vizmalo&output=embed",
+    },
+  ];
+
+  return (
+    <section className="bg-ivory py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-6">
+        <SectionTitle title="Lugares" subtitle="Dos paradas, un mismo día inolvidable" />
+        <div className="grid gap-6 md:grid-cols-2">
+          {cards.map((card) => (
+            <div key={card.title} className="overflow-hidden rounded-2xl border border-cream/70 bg-white/80 shadow-sm">
+              <img src={card.image} alt={card.title} className="h-56 w-full object-cover" />
+              <div className="space-y-2 p-6">
+                <div className="flex items-center justify-between">
+                  <p className="font-display text-xl text-sage-dark">{card.title}</p>
+                  <span className="rounded-full bg-sage/20 px-3 py-1 text-xs font-display text-sage-dark">{card.time}</span>
+                </div>
+                <p className="text-sm text-sage-dark/70">{card.location}</p>
+                <p className="text-sm text-sage-dark/80">{card.description}</p>
+                <div className="overflow-hidden rounded-lg border border-cream/60">
+                  <iframe title={card.title} src={card.map} className="h-48 w-full" loading="lazy" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
