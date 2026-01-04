@@ -508,19 +508,36 @@ function Faq() {
     { q: "Dress code", a: "Elegante de verano. Evita blanco y marfil." },
     { q: "Niños", a: "Bienvenidos. Tendremos zona infantil y cuidadoras." },
     { q: "Alergias", a: "Indícalas en el formulario de RSVP." },
+    { q: "Contacto con los novios", a: "Teléfono/WhatsApp: +34 600 000 001 (Aitana) · +34 600 000 002 (Flavio)" },
   ];
+  const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <section className="bg-ivory py-16 sm:py-20">
+    <section className="bg-cream py-16 sm:py-20">
       <div className="mx-auto max-w-5xl px-6">
         <SectionTitle title="FAQ" subtitle="Preguntas frecuentes" />
-        <div className="grid gap-4 md:grid-cols-2">
-          {items.map((item) => (
-            <div key={item.q} className="rounded-2xl border border-cream/70 bg-white/80 p-4 shadow-sm">
-              <p className="font-display text-lg text-sage-dark">{item.q}</p>
-              <p className="text-sm text-sage-dark/70">{item.a}</p>
-            </div>
-          ))}
+        <div className="space-y-3">
+          {items.map((item, idx) => {
+            const open = openIndex === idx;
+            return (
+              <div key={item.q} className="overflow-hidden rounded-2xl border border-cream/70 bg-white/85 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(open ? null : idx)}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  aria-expanded={open}
+                >
+                  <span className="font-display text-lg text-sage-dark">{item.q}</span>
+                  <span className="text-sage-dark">{open ? "−" : "+"}</span>
+                </button>
+                {open && (
+                  <div className="px-4 pb-4 text-sm text-sage-dark/80">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
