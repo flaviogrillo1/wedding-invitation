@@ -141,9 +141,7 @@ export default function HomePage() {
       )}
 
       <Hero onCtaClick={handleScrollToRsvp} />
-      <SectionSeparator />
       <Countdown days={days} hours={hours} minutes={minutes} seconds={seconds} />
-      <SectionSeparator />
       <Details />
       <SectionSeparator />
       <Timeline />
@@ -274,7 +272,7 @@ function Details() {
             <div className="space-y-3 p-6">
               <div className="flex items-center justify-between">
                 <p className="font-display text-xl text-sage-dark">Iglesia de Santa Elena</p>
-                <span className="rounded-full bg-sage/20 px-3 py-1 text-xs font-display text-sage-dark">11:30 · 12:00</span>
+                <span className="rounded-full bg-sage/20 px-3 py-1 text-xs font-display text-sage-dark">11:30 · 13:15</span>
               </div>
               <p className="text-sm text-sage-dark/70">Revilla-Cabriada (Burgos)</p>
               <p className="text-sm text-sage-dark/80">
