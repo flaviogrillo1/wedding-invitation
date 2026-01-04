@@ -1,10 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAOS } from "../components/useAOS";
 
 export default function HomePage() {
   useAOS();
+  const router = useRouter();
+  const [showContent, setShowContent] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowContent(true), 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleOpen = () => {
+    if (isOpening) return;
+    setIsOpening(true);
+    setTimeout(() => router.push("/details"), 900);
+    setTimeout(() => setIsOpening(false), 1200);
+  };
 
   return (
     <main className="font-sitka h-dvh overflow-hidden sm:h-screen">
@@ -12,68 +29,85 @@ export default function HomePage() {
         className="relative flex h-full w-full items-center justify-center bg-cover bg-center"
         style={{ backgroundImage: "url('/img/background.jpg')" }}
       >
-        <img
-          className="pointer-events-none absolute left-4 top-4 w-24 opacity-80 sm:w-32 lg:w-40"
-          src="/img/Picture2.png"
-          alt="Acuarela decorativa superior izquierda"
-          aria-hidden="true"
-        />
-        <img
-          className="pointer-events-none absolute bottom-4 right-4 w-24 opacity-80 sm:w-32 lg:w-40"
-          src="/img/Picture2.png"
-          alt="Acuarela decorativa inferior derecha"
-          aria-hidden="true"
-        />
-        <div className="relative flex flex-col items-center justify-center gap-16">
-          <img className="size-10 md:size-12 xl:size-14" src="/img/reshot-icon-wedding-rings-EAZN5FT2GH.svg" alt="Rings" />
-          <div className="flex flex-col items-center justify-center gap-2 lg:gap-6">
-            <h2 className="text-custom-blue text-3xl font-bold drop-shadow-md md:text-4xl lg:text-5xl" data-aos="fade-up">
+        <div className="relative flex flex-col items-center justify-center gap-10">
+          <img
+            className={`size-40 md:size-56 xl:size-64 transition-transform duration-700 ease-out ${
+              showContent ? "-translate-y-10 md:-translate-y-12" : ""
+            }`}
+            src="/img/anillos_acuarela.png"
+            alt="Rings"
+          />
+          <div
+            className={`flex flex-col items-center justify-center gap-2 text-center lg:gap-6 transition-opacity duration-700 ease-out ${
+              showContent ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <h2 className="text-custom-blue text-3xl font-bold drop-shadow-md md:text-4xl lg:text-5xl">
               Te invitamos a la boda de
             </h2>
-            <h1
-              className="text-custom-gold text-4xl font-bold uppercase drop-shadow-md md:text-5xl lg:text-6xl"
-              data-aos="fade-up"
-              data-aos-delay="200"
-            >
+            <h1 className="text-custom-gold text-4xl font-bold uppercase drop-shadow-md md:text-5xl lg:text-6xl">
               Aitana &amp; Flavio
             </h1>
+            <button
+              onClick={handleOpen}
+              className="bg-custom-blue rounded-full px-6 py-2 text-white shadow-xl transition-transform duration-500 ease-out hover:scale-95 md:text-lg"
+            >
+              Abrir invitación
+            </button>
           </div>
-          <Link
-            href="/details"
-            className="bg-custom-blue rounded-full px-6 py-2 text-white shadow-xl transition-transform duration-500 ease-out hover:scale-95 md:text-lg"
-            data-aos="zoom"
-            data-aos-delay="300"
-          >
-            Abrir invitación
-          </Link>
-          <img className="size-10 md:size-12 xl:size-14" src="/img/reshot-icon-wedding-flowers-LDB6YCXSZQ.svg" alt="Flowers" />
-
-          {/* LANDING PATTERN IMAGES START */}
-          {/* TOP */}
-          <div className="fixed -top-1 h-32 w-full overflow-hidden md:hidden">
-            <div className="animate-marquee-lr flex w-[200%]">
-              <div className="h-32 w-[100%] bg-[url('/img/landing-top.png')] bg-contain bg-top bg-no-repeat"></div>
-              <div className="h-32 w-[100%] bg-[url('/img/landing-top.png')] bg-contain bg-top bg-no-repeat"></div>
-            </div>
-          </div>
-
-          {/* BOTTOM */}
-          <div className="fixed -bottom-1 h-32 w-full overflow-hidden md:hidden">
-            <div className="animate-marquee-rl flex w-[200%]">
-              <div className="h-32 w-[100%] bg-[url('/img/landing-bottom.png')] bg-contain bg-bottom bg-no-repeat"></div>
-              <div className="h-32 w-[100%] bg-[url('/img/landing-bottom.png')] bg-contain bg-bottom bg-no-repeat"></div>
-            </div>
-          </div>
-
-          {/* LEFT */}
-          {/* LEFT */}
-          {/* removed per request */}
-
-          {/* RIGHT */}
-          {/* removed per request */}
-          {/* LANDING PATTERN IMAGES END */}
         </div>
+
+        {isOpening && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="envelope-scale relative w-64 sm:w-80">
+              <svg viewBox="0 0 300 200" className="w-full drop-shadow-xl">
+                <rect x="20" y="60" width="260" height="120" rx="8" fill="#f7f0e8" stroke="#d3c5b2" strokeWidth="4" />
+                <polygon points="20,60 280,60 150,150" fill="#f0e6d7" stroke="#d3c5b2" strokeWidth="4" />
+                <polygon
+                  className={`envelope-flap ${isOpening ? "open" : ""}`}
+                  points="20,60 280,60 150,140"
+                  fill="#e2d8c8"
+                  stroke="#d3c5b2"
+                  strokeWidth="4"
+                />
+                <line x1="20" y1="60" x2="150" y2="180" stroke="#d3c5b2" strokeWidth="3" />
+                <line x1="280" y1="60" x2="150" y2="180" stroke="#d3c5b2" strokeWidth="3" />
+              </svg>
+            </div>
+          </div>
+        )}
       </div>
+
+      <style jsx global>{`
+        .envelope-flap {
+          transform-origin: 50% 30%;
+          transform-box: fill-box;
+        }
+        .envelope-flap.open {
+          animation: flap-open 0.9s forwards ease-in-out;
+        }
+        @keyframes flap-open {
+          from {
+            transform: rotateX(0deg);
+          }
+          to {
+            transform: rotateX(-180deg);
+          }
+        }
+        .envelope-scale {
+          animation: envelope-pop 0.4s ease-out;
+        }
+        @keyframes envelope-pop {
+          from {
+            transform: scale(0.92);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </main>
   );
 }

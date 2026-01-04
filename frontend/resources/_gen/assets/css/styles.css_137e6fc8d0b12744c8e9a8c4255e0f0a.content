@@ -1033,19 +1033,6 @@ select {
 }
 .bg-opacity-85 {
   --tw-bg-opacity: 0.85;
-}
-.bg-\[url\(\'\/img\/landing-bottom\.png\'\)\] {
-  background-image: url('/img/landing-bottom.png');
-}
-.bg-\[url\(\'\/img\/landing-left\.png\'\)\] {
-  background-image: url('/img/landing-left.png');
-}
-.bg-\[url\(\'\/img\/landing-right\.png\'\)\] {
-  background-image: url('/img/landing-right.png');
-}
-.bg-\[url\(\'\/img\/landing-top\.png\'\)\] {
-  background-image: url('/img/landing-top.png');
-}
 .bg-contain {
   background-size: contain;
 }
