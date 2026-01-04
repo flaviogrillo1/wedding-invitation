@@ -5,10 +5,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        ivory: "#f5f0e8",
+        cream: "#e8dece",
+        sage: "#7c8b6d",
+        "sage-dark": "#3f4636",
+        gold: "#e0b14c",
         "custom-gold": "#C0990F",
         "custom-blue": "#1C2168",
       },
       fontFamily: {
+        display: ["var(--font-display)", "serif"],
+        script: ["var(--font-script)", "cursive"],
+        body: ["var(--font-body)", "serif"],
         sitka: ["Sitka", "serif"],
       },
       animation: {

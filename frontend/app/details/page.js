@@ -177,23 +177,23 @@ export default function DetailsPage() {
               <div className="text-custom-blue flex flex-col items-center gap-1" data-aos="fade-up">
                 <h3 className="text-custom-gold text-3xl font-bold lg:text-4xl">Ceremonia</h3>
                 <p className="text-base lg:text-lg">
-                  Sábado, 5 de octubre de 2024
+                  Sabado, 6 de junio de 2026
                 </p>
-                <p className="text-lg font-bold lg:text-xl">08:00 - 10:00</p>
+                <p className="text-lg font-bold lg:text-xl">17:00 - 18:00</p>
                 <div className="leading-none">
-                  <p className="text-lg font-bold lg:text-xl">Nombre del lugar</p>
-                  <p className="text-base lg:text-lg">Dirección</p>
+                  <p className="text-lg font-bold lg:text-xl">Iglesia de Santa Elena</p>
+                  <p className="text-base lg:text-lg">Revilla Cabriada (Burgos)</p>
                 </div>
               </div>
               <div className="text-custom-blue flex flex-col items-center gap-1" data-aos="fade-up">
-                <h3 className="text-custom-gold text-3xl font-bold lg:text-4xl">Recepción</h3>
+                <h3 className="text-custom-gold text-3xl font-bold lg:text-4xl">Recepcion</h3>
                 <p className="text-base lg:text-lg">
-                  Domingo, 6 de octubre de 2024
+                  Sabado, 6 de junio de 2026
                 </p>
-                <p className="text-lg font-bold lg:text-xl">10:00 - 12:00</p>
+                <p className="text-lg font-bold lg:text-xl">19:00 - 01:00</p>
                 <div className="leading-none">
-                  <p className="text-lg font-bold lg:text-xl">Nombre del lugar</p>
-                  <p className="text-base lg:text-lg">Dirección</p>
+                  <p className="text-lg font-bold lg:text-xl">Finca Santa Rosalia</p>
+                  <p className="text-base lg:text-lg">Vizmalo (Burgos)</p>
                 </div>
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function DetailsPage() {
               <iframe
                 className="h-full w-full"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.2183765161717!2d112.6318416748081!3d-7.976367679520048!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd6283c7e9abbd3%3A0xcce9af9698d6a3a5!2sSMA%20Negeri%204%20Malang!5e0!3m2!1sen!2sid!4v1729519776499!5m2!1sen!2sid"
-                style={{ border: 0 }}
+                src="https://www.google.com/maps?q=Finca+Santa+Rosalia+Vizmalo&output=embed"
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
