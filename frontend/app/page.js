@@ -27,10 +27,12 @@ export default function HomePage() {
   const [persons, setPersons] = useState([{ name: "", hasAllergies: false, allergies: "" }]);
   const [busNeeded, setBusNeeded] = useState("no");
   const [playConfirmVideo, setPlayConfirmVideo] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rsvpMessage, setRsvpMessage] = useState("");
   const introVideoRef = useRef(null);
   const confirmationVideoRef = useRef(null);
+  const rsvpRef = useRef(null);
 
   useEffect(() => {
     const video = introVideoRef.current;
@@ -65,6 +67,25 @@ export default function HomePage() {
     }
   }, [attendance]);
 
+  useEffect(() => {
+    setCtaVisible(contentVisible);
+  }, [contentVisible]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setCtaVisible(false);
+        } else if (contentVisible) {
+          setCtaVisible(true);
+        }
+      },
+      { rootMargin: "0px 0px -40% 0px" }
+    );
+    const target = rsvpRef.current;
+    if (target) observer.observe(target);
+    return () => observer.disconnect();
+  }, [contentVisible]);
 
   const handleEnter = () => {
     if (introState !== "idle") return;
@@ -189,11 +210,12 @@ export default function HomePage() {
           onVideoEnd={onVideoEnd}
           isSubmitting={isSubmitting}
           rsvpMessage={rsvpMessage}
+          rsvpRef={rsvpRef}
         />
         <Footer />
       </div>
       <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
-        {contentVisible && (
+        {ctaVisible && (
           <a
             href="#rsvp"
             className="rounded-full bg-sage-dark px-4 py-3 text-sm font-display text-ivory shadow-lg transition hover:-translate-y-1 hover:bg-sage-dark/90"
@@ -694,6 +716,7 @@ function Rsvp({
   onVideoEnd,
   isSubmitting,
   rsvpMessage,
+  rsvpRef,
 }) {
   const handlePersonFieldChange = (index, field, value) => {
     setPersons((prev) => prev.map((person, idx) => (idx === index ? { ...person, [field]: value } : person)));
@@ -708,7 +731,7 @@ function Rsvp({
   };
 
   return (
-    <section className="bg-ivory py-16 sm:py-20" id="rsvp">
+    <section className="bg-ivory py-16 sm:py-20" id="rsvp" ref={rsvpRef}>
       <div className="mx-auto max-w-3xl px-6">
         <SectionTitle title="Confirmar asistencia" subtitle="Cuéntanos si podrás acompañarnos" />
 
