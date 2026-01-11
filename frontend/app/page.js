@@ -20,7 +20,6 @@ export default function HomePage() {
   const [showIntro, setShowIntro] = useState(true);
   const [introState, setIntroState] = useState("idle");
   const [contentVisible, setContentVisible] = useState(false);
-  const [muted, setMuted] = useState(false);
   const [showIban, setShowIban] = useState(false);
   const [rsvpStep, setRsvpStep] = useState("form"); // form | video | thanks
   const [attendance, setAttendance] = useState("yes");
@@ -30,7 +29,6 @@ export default function HomePage() {
   const [playConfirmVideo, setPlayConfirmVideo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rsvpMessage, setRsvpMessage] = useState("");
-  const audioRef = useRef(null);
   const introVideoRef = useRef(null);
   const confirmationVideoRef = useRef(null);
 
@@ -67,21 +65,11 @@ export default function HomePage() {
     }
   }, [attendance]);
 
+
   const handleEnter = () => {
     if (introState !== "idle") return;
     setIntroState("playing");
     introVideoRef.current?.play().catch(() => {});
-    audioRef.current?.play().catch(() => {});
-  };
-
-  const toggleSound = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.muted = !audio.muted;
-    setMuted(audio.muted);
-    if (audio.paused) {
-      audio.play().catch(() => {});
-    }
   };
 
   const { days, hours, minutes, seconds } = useCountdown(WEDDING_DATE);
@@ -148,16 +136,6 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-ivory text-sage-dark">
-      <audio ref={audioRef} src="/assets/intro-music-S2szIoUv.mp3" loop preload="auto" muted={muted} />
-
-      <button
-        onClick={toggleSound}
-        className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-full bg-sage-dark/90 px-4 py-2 text-sm text-ivory shadow-lg transition hover:scale-95"
-        >
-        <span aria-hidden="true">{muted ? "🔈" : "🔊"}</span>
-        <span className="sr-only">{muted ? "Activar sonido" : "Silenciar sonido"}</span>
-      </button>
-
       {showIntro && (
         <div
           className="fixed inset-0 z-40 cursor-pointer overflow-hidden bg-ivory transition-opacity duration-700"
@@ -214,12 +192,16 @@ export default function HomePage() {
         />
         <Footer />
       </div>
-      <a
-        href="#rsvp"
-        className="fixed bottom-6 right-6 z-40 rounded-full bg-sage-dark px-4 py-3 text-sm font-display text-ivory shadow-lg transition hover:-translate-y-1 hover:bg-sage-dark/90"
-      >
-        Confirmar asistencia
-      </a>
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+        {contentVisible && (
+          <a
+            href="#rsvp"
+            className="rounded-full bg-sage-dark px-4 py-3 text-sm font-display text-ivory shadow-lg transition hover:-translate-y-1 hover:bg-sage-dark/90"
+          >
+            Confirmar asistencia
+          </a>
+        )}
+      </div>
     </main>
   );
 }
