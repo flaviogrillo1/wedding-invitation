@@ -585,9 +585,9 @@ function Lodging() {
           ))}
         </div>
         {activeHotel && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6" onClick={() => setActiveHotel(null)}>
+          <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-black/60 px-4 py-10" onClick={() => setActiveHotel(null)}>
             <div
-              className="max-w-lg rounded-2xl bg-white p-6 text-sage-dark shadow-2xl"
+              className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 text-sage-dark shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between gap-4">
