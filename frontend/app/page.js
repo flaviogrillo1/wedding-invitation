@@ -526,7 +526,7 @@ function Gifts({ showIban, onRevealIban }) {
 }
 
 function Lodging() {
-  const [activeHotel, setActiveHotel] = useState(null);
+  const [expandedHotel, setExpandedHotel] = useState(null);
 
   const hotels = [
     {
@@ -565,6 +565,9 @@ function Lodging() {
                 <p className="font-display text-xl text-sage-dark">{hotel.name}</p>
                 <p className="text-sm text-sage-dark/70">{hotel.location}</p>
                 <p className="text-sm text-sage-dark/80">{hotel.note}</p>
+                {expandedHotel === hotel.name && (
+                  <p className="text-sm text-sage-dark/80">{hotel.details}</p>
+                )}
                 <a
                   href={hotel.link}
                   target="_blank"
@@ -575,56 +578,15 @@ function Lodging() {
                 </a>
                 <button
                   type="button"
-                  onClick={() => setActiveHotel(hotel)}
+                  onClick={() => setExpandedHotel(expandedHotel === hotel.name ? null : hotel.name)}
                   className="ml-2 inline-block rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
                 >
-                  Ver más
+                  {expandedHotel === hotel.name ? "Cerrar" : "Ver más"}
                 </button>
               </div>
             </div>
           ))}
         </div>
-        {activeHotel && (
-          <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-black/60 px-4 py-10" onClick={() => setActiveHotel(null)}>
-            <div
-              className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 text-sage-dark shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-display text-xl">{activeHotel.name}</p>
-                  <p className="text-sm text-sage-dark/70">{activeHotel.location}</p>
-                </div>
-                <button
-                  type="button"
-                  aria-label="Cerrar"
-                  className="text-sage-dark transition hover:scale-110"
-                  onClick={() => setActiveHotel(null)}
-                >
-                  ×
-                </button>
-              </div>
-              <p className="mt-4 text-sm text-sage-dark/80">{activeHotel.details}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <a
-                  href={activeHotel.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
-                >
-                  Reservar
-                </a>
-                <button
-                  type="button"
-                  className="rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
-                  onClick={() => setActiveHotel(null)}
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
@@ -652,13 +614,13 @@ function Faq() {
     { q: "Alergias y dietas", a: "Indícalas en el formulario de RSVP y nos adaptamos encantados." },
     {
       q: "Alojamiento",
-      a: "Parador de Lerma (plan con encanto) o Hotel Silken Burgos (céntrico y cómodo). Elige el que mejor te encaje.",
+      a: "Recomendamos el Parador de Lerma y el Hotel Silken Burgos por cercanía a los autobuses. También puedes buscar algún otro lugar. Elige el que mejor te encaje.",
     },
     { q: "Regalo", a: "Preferimos efectivo el día de la boda o transferencia (IBAN), lo que te sea más cómodo." },
-    { q: "Contacto", a: "Tienes los teléfonos/WhatsApp arriba; estamos al otro lado para cualquier duda." },
+    { q: "Contacto", a: "Puedes preguntarnos cualquier cosa a través del: +34669374104 (Aitana) o +34618096990 (Flavio)." },
     {
       q: "¿Puedo hacer fotos?",
-      a: "¡Sí, claro! Habrá fotógrafa, pero también nos encantará que luego nos compartas tus fotos favoritas.",
+      a: "¡Sí, claro! Nos encantará que luego nos compartas tus fotos favoritas. Aparte de las fotos que haga cada uno, habrá una fotógrafa profesional, para que solo tengáis que preocuparos de disfrutar.",
     },
     { q: "Horarios del día", a: "Todo el programa está arriba en la invitación; échale un vistazo para no perderte nada." },
   ];
