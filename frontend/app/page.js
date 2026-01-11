@@ -11,8 +11,8 @@ const timeline = [
   { time: "12:00", title: "Ceremonia", description: "Boda en Iglesia de Santa Elena" },
   { time: "13:15", title: "Bus a la finca", description: "Traslado a Finca Santa Rosalía" },
   { time: "14:00", title: "Cóctel en jardines", description: "Brindis y aperitivos al aire libre" },
-  { time: "16:00", title: "Comida", description: "Banquete en la finca" },
-  { time: "18:00", title: "Chill out", description: "Relax entre viñedos" },
+  { time: "16:00", title: "Comida", description: "Disfrutar de una experiencia gastronómica" },
+  { time: "18:00", title: "Chill out", description: "" },
   { time: "21:00", title: "Fiesta con DJ", description: "A bailar hasta que el cuerpo aguante" },
 ];
 
@@ -488,8 +488,7 @@ function Gifts({ showIban, onRevealIban }) {
           {showIban ? (
             <div className="space-y-1 rounded-xl border border-sage-dark/40 bg-white/80 p-4 font-mono text-sage-dark">
               <p className="text-xs uppercase tracking-[0.3em] text-sage-dark/70">IBAN</p>
-              <p className="select-all text-lg">ES00 0000 0000 0000 0000 0000</p>
-              <p className="text-xs text-sage-dark/60">Concepto: Boda Aitana &amp; Flavio</p>
+              <p className="select-all text-lg">ES74 0049 0857 8124 1005 5840</p>
             </div>
           ) : (
             <button
@@ -555,12 +554,35 @@ function Lodging() {
 
 function Faq() {
   const items = [
-    { q: "¿Dónde salen los buses?", a: "Desde Burgos, Villalmanzo y Lerma hacia Revilla-Cabriada; luego a la finca y vuelta a cada origen." },
-    { q: "¿A qué hora llego a la iglesia?", a: "Llegada 11:30; ceremonia a las 12:00. El bus a la finca sale a las 13:15." },
-    { q: "Dress code", a: "Elegante de verano. Evita blanco y marfil." },
-    { q: "Niños", a: "Bienvenidos. Tendremos zona infantil y cuidadoras." },
-    { q: "Alergias", a: "Indícalas en el formulario de RSVP." },
-    { q: "Contacto con los novios", a: "Teléfono/WhatsApp: +34 600 000 001 (Aitana) · +34 600 000 002 (Flavio)" },
+    {
+      q: "¿A qué hora debo llegar y dónde es la ceremonia?",
+      a: "A las 11:30 en la Iglesia de Santa Elena (Revilla-Cabriada, Burgos). ¡Te esperamos con una gran sonrisa!",
+    },
+    {
+      q: "¿Habrá buses?",
+      a: "Sí: salidas desde Burgos, Villalmanzo y Lerma hacia la iglesia. Luego bus a la finca y, al final, regreso a cada origen.",
+    },
+    {
+      q: "¿Puedo ir en coche? ¿Hay parking?",
+      a: "Claro. En el pueblo se aparca sin problema y en la finca habrá parking habilitado para invitados.",
+    },
+    { q: "Dress code", a: "El que ves arriba en la invitación: elegante veraniego, sin blanco/marfil." },
+    {
+      q: "¿Puedo llevar acompañante?",
+      a: "Sí. Si tú eres importante para nosotros, tu acompañante también. Si dudas, escríbenos sin compromiso.",
+    },
+    { q: "Alergias y dietas", a: "Indícalas en el formulario de RSVP y nos adaptamos encantados." },
+    {
+      q: "Alojamiento",
+      a: "Parador de Lerma (plan con encanto) o Hotel Silken Burgos (céntrico y cómodo). Elige el que mejor te encaje.",
+    },
+    { q: "Regalo", a: "Preferimos efectivo el día de la boda o transferencia (IBAN), lo que te sea más cómodo." },
+    { q: "Contacto", a: "Tienes los teléfonos/WhatsApp arriba; estamos al otro lado para cualquier duda." },
+    {
+      q: "¿Puedo hacer fotos?",
+      a: "¡Sí, claro! Habrá fotógrafa, pero también nos encantará que luego nos compartas tus fotos favoritas.",
+    },
+    { q: "Horarios del día", a: "Todo el programa está arriba en la invitación; échale un vistazo para no perderte nada." },
   ];
   const [openIndex, setOpenIndex] = useState(null);
 
