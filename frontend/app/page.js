@@ -502,9 +502,14 @@ function Gifts({ showIban, onRevealIban }) {
         </p>
         <div className="mt-6 space-y-3">
           {showIban ? (
-            <div className="space-y-1 rounded-xl border border-sage-dark/40 bg-white/80 p-4 font-mono text-sage-dark">
-              <p className="text-xs uppercase tracking-[0.3em] text-sage-dark/70">IBAN</p>
-              <p className="select-all text-lg">ES74 0049 0857 8124 1005 5840</p>
+            <div className="space-y-4">
+              <div className="space-y-1 rounded-xl border border-sage-dark/40 bg-white/80 p-4 font-mono text-sage-dark">
+                <p className="text-xs uppercase tracking-[0.3em] text-sage-dark/70">IBAN</p>
+                <p className="select-all text-lg">ES74 0049 0857 8124 1005 5840</p>
+              </div>
+              <div className="flex justify-center">
+                <img src="/assets/confetti-CrGrT4ka.gif" alt="Confeti" className="h-24 w-24 rounded-full object-cover shadow" />
+              </div>
             </div>
           ) : (
             <button
@@ -515,15 +520,7 @@ function Gifts({ showIban, onRevealIban }) {
             </button>
           )}
         </div>
-        <div className="mt-8 flex justify-center">
-          <img src="/assets/confetti-CrGrT4ka.gif" alt="Confeti" className="h-20 w-20 rounded-full object-cover shadow" />
-        </div>
       </div>
-      {showFireworks && (
-        <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center">
-          <img src="/assets/confetti-CrGrT4ka.gif" alt="Confeti" className="h-48 w-48 opacity-90" />
-        </div>
-      )}
     </section>
   );
 }
