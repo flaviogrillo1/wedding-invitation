@@ -10,7 +10,7 @@ const timeline = [
   { time: "11:30", title: "Llegada invitados", description: "Os esperamos en la iglesia" },
   { time: "12:00", title: "Ceremonia", description: "Boda en Iglesia de Santa Elena" },
   { time: "13:15", title: "Bus a la finca", description: "Traslado a Finca Santa Rosalía" },
-  { time: "14:00", title: "Cóctel en jardines", description: "Brindis y aperitivos al aire libre" },
+  { time: "14:00", title: "Cóctel", description: "Brindis y aperitivos al aire libre" },
   { time: "16:00", title: "Comida", description: "Disfrutar de una experiencia gastronómica" },
   { time: "18:00", title: "Chill out", description: "" },
   { time: "21:00", title: "Fiesta con DJ", description: "A bailar hasta que el cuerpo aguante" },
@@ -152,9 +152,10 @@ export default function HomePage() {
 
       <button
         onClick={toggleSound}
-        className="fixed right-4 top-4 z-50 rounded-full bg-sage-dark/90 px-4 py-2 text-sm text-ivory shadow-lg transition hover:scale-95"
-      >
-        {muted ? "Activar música" : "Silenciar"}
+        className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-full bg-sage-dark/90 px-4 py-2 text-sm text-ivory shadow-lg transition hover:scale-95"
+        >
+        <span aria-hidden="true">{muted ? "🔈" : "🔊"}</span>
+        <span className="sr-only">{muted ? "Activar sonido" : "Silenciar sonido"}</span>
       </button>
 
       {showIntro && (
@@ -172,12 +173,6 @@ export default function HomePage() {
             playsInline
             preload="auto"
           />
-          <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/50 via-black/20 to-transparent p-8 text-center text-ivory">
-            <div className="space-y-2">
-              <p className="font-body text-xs tracking-[0.3em] uppercase">Haz clic para entrar</p>
-              <p className="font-script text-3xl md:text-4xl">Aitana &amp; Flavio</p>
-            </div>
-          </div>
         </div>
       )}
 
@@ -219,6 +214,12 @@ export default function HomePage() {
         />
         <Footer />
       </div>
+      <a
+        href="#rsvp"
+        className="fixed bottom-6 right-6 z-40 rounded-full bg-sage-dark px-4 py-3 text-sm font-display text-ivory shadow-lg transition hover:-translate-y-1 hover:bg-sage-dark/90"
+      >
+        Confirmar asistencia
+      </a>
     </main>
   );
 }
@@ -365,7 +366,7 @@ function Details() {
               </div>
               <p className="text-sm text-sage-dark/70">Vizmalo (Burgos)</p>
               <p className="text-sm text-sage-dark/80">
-                Bus desde la iglesia 13:15. Cóctel en jardines 14:00, comida 16:00, chill out y fiesta con DJ hasta tarde.
+                Bus desde la iglesia 13:15. Cóctel a las 14:00 con su posterior comida. Después, chill out y fiesta con DJ hasta tarde.
               </p>
               <div className="flex flex-wrap gap-2">
                 <a
@@ -435,17 +436,17 @@ function InfoCards() {
   const cards = [
     {
       title: "Dress code",
-      body: "Elegante de verano. Colores suaves y tejidos ligeros para disfrutar de la finca. Evita el blanco y los tonos marfil.",
+      body: "Elegante de verano. Evita el blanco y los tonos marfil para que la novia brille con luz propia.",
       icon: "🌾",
     },
     {
       title: "Niños",
-      body: "Los peques son bienvenidos. Tendremos zona de juegos y cuidadoras para que todos podamos disfrutar.",
+      body: "Los peques son bienvenidos, aunque no habrá servicios de guardería.",
       icon: "🧸",
     },
     {
       title: "Alojamiento",
-      body: "Hay hoteles rurales y casas cerca de Revilla-Cabriada y Vizmalo, y más opciones en Burgos capital. Te ayudamos con recomendaciones si lo necesitas.",
+      body: "Hay hoteles y casas rurales tanto en Lerma como en Burgos. Te ayudamos con recomendaciones si lo necesitas.",
       icon: "🏡",
     },
     {
@@ -459,7 +460,7 @@ function InfoCards() {
     <section className="bg-ivory py-16 sm:py-20">
       <div className="mx-auto max-w-5xl px-6">
         <SectionTitle title="Información útil" subtitle="Pequeños detalles que nos ayudarán a todos" />
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {cards.map((card) => (
             <div
               key={card.title}
@@ -477,6 +478,17 @@ function InfoCards() {
 }
 
 function Gifts({ showIban, onRevealIban }) {
+  const [showFireworks, setShowFireworks] = useState(false);
+
+  useEffect(() => {
+    if (showIban) {
+      setShowFireworks(true);
+      const timer = setTimeout(() => setShowFireworks(false), 4000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [showIban]);
+
   return (
     <section className="bg-ivory py-16 sm:py-20">
       <div className="mx-auto max-w-3xl px-6 text-center">
@@ -503,23 +515,37 @@ function Gifts({ showIban, onRevealIban }) {
           <img src="/assets/confetti-CrGrT4ka.gif" alt="Confeti" className="h-20 w-20 rounded-full object-cover shadow" />
         </div>
       </div>
+      {showFireworks && (
+        <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center">
+          <img src="/assets/confetti-CrGrT4ka.gif" alt="Confeti" className="h-48 w-48 opacity-90" />
+        </div>
+      )}
     </section>
   );
 }
 
 function Lodging() {
+  const [activeHotel, setActiveHotel] = useState(null);
+
   const hotels = [
     {
       name: "Silken Burgos",
       location: "Burgos",
       link: "https://www.hoteles-silken.com/es/hotel-gran-teatro-burgos/",
       note: "Hotel céntrico, perfecto para conectar con el bus.",
+      image:
+        "https://www.hoteles-silken.com/content/imgsxml/galerias/panel_galeriapage/1/fachada-noche-007955.jpg",
+      details:
+        "A un paso de la Catedral, el río Arlanzón y la ruta de pinchos. Ideal para moverte a pie por Burgos y enlazar con el bus a la boda.",
     },
     {
       name: "Parador de Lerma",
       location: "Lerma",
       link: "https://paradores.es/es/reservas/parador/110",
       note: "Parador histórico con encanto a pocos minutos de las rutas de bus.",
+      image: "https://paradores.es/sites/default/files/galerias/Parador_Lerma_Exteriores_43.jpg",
+      details:
+        "Palacio ducal del siglo XVII con claustro y vistas. Muy cerca de Revilla-Cabriada y de la A-1; perfecto si quieres historia, tranquilidad y buena conexión con los buses.",
     },
   ];
 
@@ -531,22 +557,73 @@ function Lodging() {
           {hotels.map((hotel) => (
             <div
               key={hotel.name}
-              className="rounded-2xl border border-cream/70 bg-white/80 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              className="overflow-hidden rounded-2xl border border-cream/70 bg-white/80 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
             >
-              <p className="font-display text-xl text-sage-dark">{hotel.name}</p>
-              <p className="text-sm text-sage-dark/70">{hotel.location}</p>
-              <p className="mt-2 text-sm text-sage-dark/80">{hotel.note}</p>
-              <a
-                href={hotel.link}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 inline-block rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
-              >
-                Ver web
-              </a>
+              <img src={hotel.image} alt={hotel.name} className="h-48 w-full object-cover" />
+              <div className="space-y-2 p-6">
+                <p className="font-display text-xl text-sage-dark">{hotel.name}</p>
+                <p className="text-sm text-sage-dark/70">{hotel.location}</p>
+                <p className="text-sm text-sage-dark/80">{hotel.note}</p>
+                <a
+                  href={hotel.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-block rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+                >
+                  Reservar
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setActiveHotel(hotel)}
+                  className="ml-2 inline-block rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+                >
+                  Ver más
+                </button>
+              </div>
             </div>
           ))}
         </div>
+        {activeHotel && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6" onClick={() => setActiveHotel(null)}>
+            <div
+              className="max-w-lg rounded-2xl bg-white p-6 text-sage-dark shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-display text-xl">{activeHotel.name}</p>
+                  <p className="text-sm text-sage-dark/70">{activeHotel.location}</p>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Cerrar"
+                  className="text-sage-dark transition hover:scale-110"
+                  onClick={() => setActiveHotel(null)}
+                >
+                  ×
+                </button>
+              </div>
+              <p className="mt-4 text-sm text-sage-dark/80">{activeHotel.details}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a
+                  href={activeHotel.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+                >
+                  Reservar
+                </a>
+                <button
+                  type="button"
+                  className="rounded-full border border-sage-dark/40 px-4 py-2 text-sm font-display text-sage-dark transition hover:bg-sage-dark hover:text-ivory"
+                  onClick={() => setActiveHotel(null)}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -876,7 +953,6 @@ function Footer() {
       <div className="space-y-2">
         <p className="font-script text-3xl">Aitana &amp; Flavio</p>
         <p className="text-sm text-ivory/80">6 de junio de 2026 · {CEREMONY_LOCATION}</p>
-        <p className="text-xs text-ivory/60">Hecho con amor · Las mismas imágenes y vídeos del sitio original</p>
       </div>
     </footer>
   );
