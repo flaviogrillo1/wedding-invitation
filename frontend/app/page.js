@@ -28,6 +28,7 @@ export default function HomePage() {
   const [busNeeded, setBusNeeded] = useState("no");
   const [playConfirmVideo, setPlayConfirmVideo] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
+  const [heroOffset, setHeroOffset] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rsvpMessage, setRsvpMessage] = useState("");
   const introVideoRef = useRef(null);
@@ -70,6 +71,16 @@ export default function HomePage() {
   useEffect(() => {
     setCtaVisible(contentVisible);
   }, [contentVisible]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const offset = Math.min(window.scrollY * 0.6, 200);
+      setHeroOffset(offset);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -180,7 +191,7 @@ export default function HomePage() {
           contentVisible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"
         }`}
       >
-        <Hero onCtaClick={handleScrollToRsvp} />
+        <Hero onCtaClick={handleScrollToRsvp} heroOffset={heroOffset} />
         <Countdown days={days} hours={hours} minutes={minutes} seconds={seconds} />
         <Details />
         <SectionSeparator />
@@ -246,7 +257,7 @@ function useCountdown(target) {
   }, [timeLeft]);
 }
 
-function Hero({ onCtaClick }) {
+function Hero({ onCtaClick, heroOffset }) {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <video
@@ -256,6 +267,10 @@ function Hero({ onCtaClick }) {
         muted
         loop
         playsInline
+        style={{
+          transform: `translateY(${heroOffset * 0.8}px) scale(${1 + heroOffset / 800})`,
+          transition: "transform 0.25s ease-out",
+        }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 text-center text-ivory">
@@ -284,6 +299,7 @@ function Countdown({ days, hours, minutes, seconds }) {
   const [isClient, setIsClient] = useState(false);
   useEffect(() => setIsClient(true), []);
   const safe = (v) => (isClient ? v : "--");
+  const { ref, visible } = useReveal();
 
   const items = [
     { label: "Días", value: safe(days) },
@@ -293,7 +309,12 @@ function Countdown({ days, hours, minutes, seconds }) {
   ];
 
   return (
-    <section className="bg-sage-dark py-16 text-ivory">
+    <section
+      ref={ref}
+      className={`bg-sage-dark py-16 text-ivory transition duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+    >
       <div className="mx-auto max-w-4xl px-6 text-center">
         <h2 className="font-script text-4xl md:text-5xl">Cuenta atrás</h2>
         <p className="mt-2 font-body text-lg text-ivory/80">Para el día más especial de nuestras vidas</p>
@@ -316,9 +337,16 @@ function Countdown({ days, hours, minutes, seconds }) {
 function Details() {
   const calendarUrl = buildCalendarUrl("Ceremonia - Aitana & Flavio", WEDDING_DATE, CEREMONY_LOCATION);
   const celebrationCalendar = buildCalendarUrl("Celebración - Aitana & Flavio", WEDDING_DATE, RECEPTION_LOCATION);
+  const { ref, visible } = useReveal();
 
   return (
-    <section className="bg-ivory py-16 sm:py-20" id="detalles">
+    <section
+      ref={ref}
+      className={`bg-ivory py-16 sm:py-20 transition duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+      id="detalles"
+    >
       <div className="mx-auto max-w-6xl px-6">
         <SectionTitle title="Lugares" subtitle="Ceremonia y celebración" />
         <div className="grid gap-6 md:grid-cols-2">
@@ -398,8 +426,14 @@ function Details() {
 }
 
 function Timeline() {
+  const { ref, visible } = useReveal();
   return (
-    <section className="bg-cream py-16 sm:py-20">
+    <section
+      ref={ref}
+      className={`bg-cream py-16 sm:py-20 transition duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+    >
       <div className="mx-auto max-w-5xl px-6">
         <SectionTitle title="Programa del día" subtitle="Así queremos vivirlo contigo" />
         <div className="hidden gap-4 md:grid md:grid-cols-7">
@@ -437,6 +471,7 @@ function Timeline() {
 }
 
 function InfoCards() {
+  const { ref, visible } = useReveal();
   const cards = [
     {
       title: "Dress code",
@@ -461,7 +496,12 @@ function InfoCards() {
   ];
 
   return (
-    <section className="bg-ivory py-16 sm:py-20">
+    <section
+      ref={ref}
+      className={`bg-ivory py-16 sm:py-20 transition duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+    >
       <div className="mx-auto max-w-5xl px-6">
         <SectionTitle title="Información útil" subtitle="Pequeños detalles que nos ayudarán a todos" />
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -483,6 +523,7 @@ function InfoCards() {
 
 function Gifts({ showIban, onRevealIban }) {
   const [showFireworks, setShowFireworks] = useState(false);
+  const { ref, visible } = useReveal();
 
   useEffect(() => {
     if (showIban) {
@@ -494,7 +535,12 @@ function Gifts({ showIban, onRevealIban }) {
   }, [showIban]);
 
   return (
-    <section className="bg-ivory py-16 sm:py-20">
+    <section
+      ref={ref}
+      className={`bg-ivory py-16 sm:py-20 transition duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+    >
       <div className="mx-auto max-w-3xl px-6 text-center">
         <SectionTitle title="Regalos" subtitle="Tu presencia es nuestro mayor regalo" />
         <p className="font-body text-base text-sage-dark/80">
@@ -527,6 +573,7 @@ function Gifts({ showIban, onRevealIban }) {
 
 function Lodging() {
   const [expandedHotel, setExpandedHotel] = useState(null);
+  const { ref, visible } = useReveal();
 
   const hotels = [
     {
@@ -551,7 +598,12 @@ function Lodging() {
   ];
 
   return (
-    <section className="bg-cream py-16 sm:py-20">
+    <section
+      ref={ref}
+      className={`bg-cream py-16 sm:py-20 transition duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+    >
       <div className="mx-auto max-w-5xl px-6">
         <SectionTitle title="Alojamientos" subtitle="Opciones cercanas para descansar" />
         <div className="grid gap-4 md:grid-cols-2">
@@ -593,6 +645,7 @@ function Lodging() {
 }
 
 function Faq() {
+  const { ref, visible } = useReveal();
   const items = [
     {
       q: "¿A qué hora debo llegar y dónde es la ceremonia?",
@@ -627,7 +680,12 @@ function Faq() {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <section className="bg-cream py-16 sm:py-20">
+    <section
+      ref={ref}
+      className={`bg-cream py-16 sm:py-20 transition duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+    >
       <div className="mx-auto max-w-5xl px-6">
         <SectionTitle title="FAQ" subtitle="Preguntas frecuentes" />
         <div className="space-y-3">
@@ -677,6 +735,7 @@ function Rsvp({
   rsvpMessage,
   rsvpRef,
 }) {
+  const { ref, visible } = useReveal();
   const handlePersonFieldChange = (index, field, value) => {
     setPersons((prev) => prev.map((person, idx) => (idx === index ? { ...person, [field]: value } : person)));
   };
@@ -690,7 +749,18 @@ function Rsvp({
   };
 
   return (
-    <section className="bg-ivory py-16 sm:py-20" id="rsvp" ref={rsvpRef}>
+    <section
+      className={`bg-ivory py-16 sm:py-20 transition duration-700 ease-out ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+      }`}
+      id="rsvp"
+      ref={(node) => {
+        rsvpRef.current = node;
+        if (ref && typeof ref === "object") {
+          ref.current = node;
+        }
+      }}
+    >
       <div className="mx-auto max-w-3xl px-6">
         <SectionTitle title="Confirmar asistencia" subtitle="Cuéntanos si podrás acompañarnos" />
 
@@ -939,6 +1009,25 @@ function SectionSeparator() {
       <span className="h-px w-24 bg-sage-dark/30" />
     </div>
   );
+}
+
+function useReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.2 }
+    );
+    const el = ref.current;
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, visible };
 }
 
 function buildCalendarUrl(title, isoDate, location) {
